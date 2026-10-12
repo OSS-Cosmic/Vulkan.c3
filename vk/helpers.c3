@@ -54,7 +54,7 @@ fn CommandBufferList? Device.createCommandBuffers(
 {
 	CommandBufferList buffers;
 	// Scratch for the driver to fill; the handles are copied into the list below.
-	CommandBuffer* command_buffers = mem::new_array(CommandBuffer, count);
+	CommandBuffer* command_buffers = mem::new_array(CommandBuffer, (sz)count);
 	defer mem::free(command_buffers);
 	CommandBufferAllocateInfo command_buffer_info = {
 		.sType = STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -139,7 +139,7 @@ fn SurfaceFormatList? SurfaceKHR.getFormats(self, PhysicalDevice device)
 	SurfaceFormatList formatList;
 	getPhysicalDeviceSurfaceFormatsKHR(device, self, &format_count, null)!;
 
-	SurfaceFormatKHR* formats = mem::new_array(SurfaceFormatKHR, format_count);
+	SurfaceFormatKHR* formats = mem::new_array(SurfaceFormatKHR, (sz)format_count);
 	defer mem::free(formats);
 	getPhysicalDeviceSurfaceFormatsKHR(device, self, &format_count, formats)!;
 
@@ -163,7 +163,7 @@ fn PresentModeList? SurfaceKHR.getPresentModes(self, PhysicalDevice device)
 	PresentModeList presentList;
 	getPhysicalDeviceSurfacePresentModesKHR(device, self, &present_count, null)!;
 
-	PresentModeKHR* presents = mem::new_array(PresentModeKHR, present_count);
+	PresentModeKHR* presents = mem::new_array(PresentModeKHR, (sz)present_count);
 	defer mem::free(presents);
 	getPhysicalDeviceSurfacePresentModesKHR(device, self, &present_count, presents)!;
 
@@ -180,7 +180,7 @@ fn DeviceList? Instance.getDevices(self)
 	DeviceList deviceList;
 	vk::enumeratePhysicalDevices(self, &deviceCount, null)!;
 
-	PhysicalDevice* devices = mem::new_array(PhysicalDevice, deviceCount);
+	PhysicalDevice* devices = mem::new_array(PhysicalDevice, (sz)deviceCount);
 	defer mem::free(devices);
 
 	vk::enumeratePhysicalDevices(self, &deviceCount, devices)!;
@@ -262,7 +262,7 @@ fn QueuePropertiesList? PhysicalDevice.getQueueProperties(self)
 	QueuePropertiesList propertiesList;
 	getPhysicalDeviceQueueFamilyProperties(self, &queueCount, null);
 
-	QueueFamilyProperties* properties = mem::new_array(QueueFamilyProperties, queueCount);
+	QueueFamilyProperties* properties = mem::new_array(QueueFamilyProperties, (sz)queueCount);
 	defer mem::free(properties);
 	getPhysicalDeviceQueueFamilyProperties(self, &queueCount, properties);
 
@@ -278,7 +278,7 @@ fn void? checkInstanceExtensionSupport(ZStringList requested_extensions)
 	uint extensionCount;
 	StringList extensions;
 	vk::enumerateInstanceExtensionProperties(null, &extensionCount, null)!;
-	ExtensionProperties* layers = mem::new_array(ExtensionProperties, extensionCount);
+	ExtensionProperties* layers = mem::new_array(ExtensionProperties, (sz)extensionCount);
 	defer mem::free(layers);
 
 	vk::enumerateInstanceExtensionProperties(null, &extensionCount, layers)!;
@@ -321,7 +321,7 @@ fn StringList? getDeviceExtensions(PhysicalDevice device)
 	uint extensionCount;
 	StringList extensionList;
 	vk::enumerateDeviceExtensionProperties(device, null, &extensionCount, null)!;
-	ExtensionProperties* layers = mem::new_array(ExtensionProperties, extensionCount);
+	ExtensionProperties* layers = mem::new_array(ExtensionProperties, (sz)extensionCount);
 	defer mem::free(layers);
 
 	vk::enumerateDeviceExtensionProperties(device, null, &extensionCount, layers)!;
@@ -353,7 +353,7 @@ fn StringList? getInstanceExtensions()
 	uint extensionCount;
 	StringList extensionList;
 	vk::enumerateInstanceExtensionProperties(null, &extensionCount, null)!;
-	ExtensionProperties* layers = mem::new_array(ExtensionProperties, extensionCount);
+	ExtensionProperties* layers = mem::new_array(ExtensionProperties, (sz)extensionCount);
 	defer mem::free(layers);
 
 	vk::enumerateInstanceExtensionProperties(null, &extensionCount, layers)!;
@@ -371,7 +371,7 @@ fn StringList? getValidationLayers()
 	StringList layersList;
 	vk::enumerateInstanceLayerProperties(&layerCount, null)!;
 
-	LayerProperties* layers = mem::new_array(LayerProperties, layerCount);
+	LayerProperties* layers = mem::new_array(LayerProperties, (sz)layerCount);
 	defer mem::free(layers);
 
 	vk::enumerateInstanceLayerProperties(&layerCount, layers)!;
@@ -413,7 +413,7 @@ fn vk::MemoryRequirements Image.getMemoryRequirements(self, Device device)
 
 fn vk::ImageList? SwapchainKHR.getImages(self, Device device, uint count)
 {
-	vk::Image* images = mem::new_array(vk::Image, count);
+	vk::Image* images = mem::new_array(vk::Image, (sz)count);
 	vk::getSwapchainImagesKHR(device, self, &count, images)!;
 
 	vk::ImageList list;
@@ -476,7 +476,7 @@ fn void RenderPass.free(self, Device device)
 
 fn void FenceList.release(self, vk::Device device)
 {
-	for (uint i = 0; i < self.len(); ++i)
+	for (uint i = 0; i < (uint)self.len(); ++i)
 	{
 		vk::destroyFence(device, self.entries[i], null);
 	}
@@ -485,7 +485,7 @@ fn void FenceList.release(self, vk::Device device)
 
 fn void FrameBufferList.release(self, vk::Device device)
 {
-	for (uint i = 0; i < self.len(); ++i)
+	for (uint i = 0; i < (uint)self.len(); ++i)
 	{
 		vk::destroyFramebuffer(device, self.entries[i], null);
 	}
@@ -494,7 +494,7 @@ fn void FrameBufferList.release(self, vk::Device device)
 
 fn void SemaphoreList.release(self, vk::Device device)
 {
-	for (uint i = 0; i < self.len(); ++i)
+	for (uint i = 0; i < (uint)self.len(); ++i)
 	{
 		vk::destroySemaphore(device, self.entries[i], null);
 	}
@@ -953,7 +953,7 @@ fn Swapchain? Swapchain.init(
 					.levelCount = 1,
 				}
 			)
-			.setImage(self.images[i])
+			.setImage(self.images[(sz)i])
 			.build(device)!;
 		self.views.push(view);
 	}
@@ -965,7 +965,7 @@ fn Swapchain? Swapchain.init(
 		{
 			Framebuffer fb = framebufferCreateInfo().setRenderPass(render_pass).setWidth(width).setHeight(height)
 				.setLayers(1)
-				.setAttachments({ self.views[i] })
+				.setAttachments({ self.views[(sz)i] })
 				.build(device)!;
 			self.framebuffers.push(fb);
 		}
@@ -1050,8 +1050,8 @@ fn FrameSync? FrameSync.init(&self, Device device, uint frame_count = 2, uint im
 
 fn uint? FrameSync.beginFrame(&self, Device device, SwapchainKHR swapchain)
 {
-	Fence frame_fence             = self.fences[self.current_frame];
-	Semaphore available_semaphore = self.image_available[self.current_frame];
+	Fence frame_fence             = self.fences[(sz)self.current_frame];
+	Semaphore available_semaphore = self.image_available[(sz)self.current_frame];
 
 	frame_fence.wait(device)!;
 	frame_fence.reset(device)!;
@@ -1062,8 +1062,8 @@ fn uint? FrameSync.beginFrame(&self, Device device, SwapchainKHR swapchain)
 
 fn void? FrameSync.endFrame(&self, Queue queue, CommandBuffer cmd, SwapchainKHR swapchain, uint image_index)
 {
-	Semaphore available_semaphore = self.image_available[self.current_frame];
-	Semaphore finished_semaphore  = self.render_finished[image_index];
+	Semaphore available_semaphore = self.image_available[(sz)self.current_frame];
+	Semaphore finished_semaphore  = self.render_finished[(sz)image_index];
 
 	CommandBufferSubmitInfo cmd_info = commandBufferSubmitInfo().setCommandBuffer(cmd);
 	SemaphoreSubmitInfo wait_info = semaphoreSubmitInfo().setSemaphore(available_semaphore)
@@ -1074,7 +1074,7 @@ fn void? FrameSync.endFrame(&self, Queue queue, CommandBuffer cmd, SwapchainKHR 
 	SubmitInfo2 submit_info = submitInfo2().setCommandBufferInfos({ cmd_info }).setWaitSemaphoreInfos({ wait_info })
 		.setSignalSemaphoreInfos({ signal_info });
 
-	Fence frame_fence = self.fences[self.current_frame];
+	Fence frame_fence = self.fences[(sz)self.current_frame];
 	endCommandBuffer(cmd)!;
 	queueSubmit2(queue, 1, &submit_info, frame_fence)!;
 

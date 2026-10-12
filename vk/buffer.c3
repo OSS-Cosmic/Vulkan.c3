@@ -659,7 +659,7 @@ fn MemoryRequirements BufferCreateInfo.descriptorMemoryRequirements(self, Physic
       .build(device);
 
     return {
-        .size = (sz)alignUp(self.size, descriptorProperties.descriptorBufferOffsetAlignment),
+        .size = (DeviceSize)alignUp(self.size, descriptorProperties.descriptorBufferOffsetAlignment),
         .alignment = descriptorProperties.descriptorBufferOffsetAlignment
     };
 }
@@ -697,9 +697,9 @@ struct Region {
     BufferManager* bm;
 }
 
-fn ulong Region.get_address(&self) => self.bm.buffers[self.buffer].get_address() + (ulong)self.offset;
-fn void* Region.get_ref(&self) => (void*)(self.bm.buffers[self.buffer].data() + self.offset);
-fn char* Region.data(&self) => self.bm.buffers[self.buffer].data() + self.offset;
+fn ulong Region.get_address(&self) => self.bm.buffers[(sz)self.buffer].get_address() + (ulong)self.offset;
+fn void* Region.get_ref(&self) => (void*)(self.bm.buffers[(sz)self.buffer].data() + self.offset);
+fn char* Region.data(&self) => self.bm.buffers[(sz)self.buffer].data() + self.offset;
 fn void Region.reset(&self) => self.used_size = 0;
 
 <*
@@ -786,9 +786,9 @@ fn BufferManager create_buffer_manager(Allocator[] buffers, UploadFN uploadFN = 
 }
 
 fn Region? BufferManager.alloc(&self, uint buffer_index, uint size, void* data = null) {
-    Allocator buffer = self.buffers[buffer_index];
+    Allocator buffer = self.buffers[(sz)buffer_index];
 
-    if (buffer.total_size() < buffer.get_used_size() + size) return COMPONENT_BUFFER_OVERFLOW~;
+    if (buffer.total_size() < buffer.get_used_size() + (sz)size) return COMPONENT_BUFFER_OVERFLOW~;
 
     Region region = {
         .size = size,
@@ -799,13 +799,13 @@ fn Region? BufferManager.alloc(&self, uint buffer_index, uint size, void* data =
 
     if (data != null) {
         if (buffer.get_type() == (uint)GpuType.DEVICE_ONLY.ordinal) {
-            self.uploadFN(buffer, data, size, region.offset);
+            self.uploadFN(buffer, data, (sz)size, (sz)region.offset);
         } else {
-            buffer.upload(data, size, region.offset);
+            buffer.upload(data, (sz)size, (sz)region.offset);
         }
     }
 
-    buffer.set_used_size(buffer.get_used_size() + size);
+    buffer.set_used_size(buffer.get_used_size() + (sz)size);
     return region;
 }
 
@@ -874,7 +874,7 @@ fn void LocalBuffer.mark_deleted(&self) @dynamic {
 fn bool LocalBuffer.is_deleted(&self) @dynamic => self.deleted;
 
 fn char* LocalBuffer.data(&self) @dynamic => self.mapped;
-fn sz LocalBuffer.total_size(&self) @dynamic => (uint)-1;
+fn sz LocalBuffer.total_size(&self) @dynamic => (sz)(uint)-1;
 fn sz LocalBuffer.get_used_size(&self) @dynamic => self.used_size;
 fn ulong LocalBuffer.get_address(&self) @dynamic => 0;
 fn uint LocalBuffer.get_type(&self) @dynamic => 2;
